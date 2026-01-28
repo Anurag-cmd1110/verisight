@@ -185,5 +185,46 @@ app.post('/api/analyze', async (req, res) => {
   }
 });
 
+// --- MIDDLEWARE: VERIFY TOKEN (Security Check) ---
+const verifyToken = (req, res, next) => {
+  const token = req.headers['authorization']?.split(' ')[1]; // Get "Bearer <token>"
+  if (!token) return res.status(403).json({ error: "Access Denied. No Token." });
+
+  jwt.verify(token, process.env.JWT_SECRET || 'secretkey', (err, decoded) => {
+    if (err) return res.status(401).json({ error: "Invalid Token." });
+    req.userId = decoded.id;
+    next();
+  });
+};
+
+// --- 7. CHANGE PASSWORD ROUTE ---
+app.post('/api/change-password', verifyToken, async (req, res) => {
+  try {
+    const { oldPassword, newPassword } = req.body;
+    
+    // 1. Find User
+    const user = await User.findById(req.userId);
+    if (!user) return res.status(404).json({ error: "User not found." });
+
+    // 2. Check Old Password
+    const isMatch = await bcrypt.compare(oldPassword, user.password);
+    if (!isMatch) return res.status(400).json({ error: "Current password is incorrect." });
+
+    // 3. Hash New Password
+    const salt = await bcrypt.genSalt(10);
+    const hashedPassword = await bcrypt.hash(newPassword, salt);
+
+    // 4. Update Database
+    user.password = hashedPassword;
+    await user.save();
+
+    res.json({ message: "Credentials Updated Successfully." });
+
+  } catch (error) {
+    console.error("Password Update Error:", error);
+    res.status(500).json({ error: "System Error." });
+  }
+});
+
 // --- 6. START SERVER ---
 app.listen(PORT, () => console.log(`🚀 Forensic Server running on http://localhost:${PORT}`));
