@@ -11,9 +11,16 @@ const PORT = 5000;
 
 // --- MIDDLEWARE ---
 // Increased limit to 50mb to handle video frame uploads
+// --- MIDDLEWARE ---
+// Allow HUGE data for video frames (JSON + URL Encoded)
 app.use(express.json({ limit: '50mb' }));
-app.use(cors());
+app.use(express.urlencoded({ limit: '50mb', extended: true })); // <--- YOU MISSED THIS LINE
 
+// Allow Frontend to talk to Backend
+app.use(cors({
+    origin: '*',
+    methods: ['GET', 'POST']
+}));
 // --- 1. DATABASE CONNECTION (MongoDB) ---
 // Ensure you have MongoDB installed or use a cloud URI in .env
 mongoose.connect(process.env.MONGODB_URI || 'mongodb://127.0.0.1:27017/verisight')
