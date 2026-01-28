@@ -1,0 +1,8 @@
+
+{
+  "name": "VeriSight Forensic AI v4.0",
+  "description": "Advanced deepfake detection system using Gemini AI to identify subtle temporal and visual inconsistencies in video media.",
+  "requestFramePermissions": [
+    "camera"
+  ]
+}
