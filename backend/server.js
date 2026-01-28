@@ -13,9 +13,8 @@ const PORT = 5000;
 // Increased limit to 50mb to handle video frame uploads
 // --- MIDDLEWARE ---
 // Allow HUGE data for video frames (JSON + URL Encoded)
-app.use(express.json({ limit: '50mb' }));
-app.use(express.urlencoded({ limit: '50mb', extended: true })); // <--- YOU MISSED THIS LINE
-
+app.use(express.json({ limit: '100mb' }));
+app.use(express.urlencoded({ limit: '100mb', extended: true }));
 // Allow Frontend to talk to Backend
 app.use(cors({
     origin: '*',
